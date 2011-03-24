@@ -10,14 +10,17 @@ post '/upload' do
 
   @post = params[:post]
   @numberOfBlocks = params[:post][:blocks]
+  
+  @fileName = params[:post][:file][:filename]
+
   directory = "public/files"
 
-  unless params[:post][:file] && (tmpfile = params[:post][:file][:tempfile]) && (name = params[:post][:file][:filename])
+  unless params[:post][:file] && (tmpfile = params[:post][:file][:tempfile]) && (@fileName)
       @error = "No file selected"
       return "Upload Error"#haml(:upload)
   end
 
-  path = File.join(directory, name)
+  path = File.join(directory, @fileName)
   File.open(path, "wb") { |f| f.write(tmpfile.read) }
 
   erb :upload

@@ -6,6 +6,10 @@ require 'erb'
 include Magick
 
 get '/' do
+  @im = ImageList.new("public/files/mmtodo_paint.png")
+  @pixels = @im.dispatch(0, 0, @im.columns, @im.rows, "RGB")
+  #im.display
+
   erb :index
 end
 

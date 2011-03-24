@@ -6,6 +6,7 @@ get '/' do
   erb :index
 end
 
+# ----------------------------------------
 post '/upload' do
 
   @post = params[:post]

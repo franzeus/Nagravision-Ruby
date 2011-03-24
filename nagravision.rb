@@ -1,6 +1,9 @@
 # Nagravision MMT09
 require 'sinatra'
+require 'RMagick'
 require 'erb'
+
+include Magick
 
 get '/' do
   erb :index

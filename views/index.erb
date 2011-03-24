@@ -1,5 +1,31 @@
-<h2>Formular</h2>
+<html>
+<head>
+  <title>Nagravision file upload</title>
 
-<form>
-	<input type="file" name="file" />
+  <style>
+    body  { font-family:Arial; }
+    label { display:block; margin-top:1.5em; margin-bottom:0.3em; }
+    input { padding:0.4em; }
+  </style>
+
+</head>
+
+<body>
+<h2>Upload Picture</h2>
+
+<form method="post" action="upload" enctype="multipart/form-data">
+
+  <label>Number of blocks:</label>
+  <input type="text" name="post[blocks]" size="2" value="32" />
+  
+  <label>Select Picture:</label>
+	<input type="file" name="post[file]" />
+
+  <p>
+  <input type="submit" value=" Submit File " />
+  </p>
+
 </form>
+
+</body>
+</html>

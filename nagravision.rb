@@ -7,8 +7,13 @@ include Magick
 
 get '/' do
   @im = ImageList.new("public/files/mmtodo_paint.png")
-  @pixels = @im.dispatch(0, 0, @im.columns, @im.rows, "RGB")
-  #im.display
+  #@pixels = @im.dispatch(0, 0, @im.columns, @im.rows, "RGB")
+  @line = @im.export_pixels(0, 20, @im.columns, 1, "RGB");
+  @other_line = @im.export_pixels(0, 120, @im.columns, 1, "RGB")
+  @im.import_pixels(0, 120, @im.columns, 1, "RGB", @line)
+  @im.import_pixels(0, 20, @im.columns, 1, "RGB", @other_line)
+
+#im.display
 
   erb :index
 end

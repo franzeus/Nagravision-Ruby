@@ -8,11 +8,23 @@ include Magick
 get '/' do
   @im = ImageList.new("public/files/mmtodo_paint.png")
   #@pixels = @im.dispatch(0, 0, @im.columns, @im.rows, "RGB")
-  @line = @im.export_pixels(0, 20, @im.columns, 1, "RGB");
-  @other_line = @im.export_pixels(0, 120, @im.columns, 1, "RGB")
-  @im.import_pixels(0, 120, @im.columns, 1, "RGB", @line)
-  @im.import_pixels(0, 20, @im.columns, 1, "RGB", @other_line)
+  blocks = 4 
+  block_size = @im.rows / blocks
+  block_min = 0 
+  block_max = 50	 
+  for i in 1..blocks
+  block_min = (block_size * (i - 1)).ceil #THIS Line fucks the code up
+  block_max = (block_size * i).ceil # (and this) | try a hardcoded nr for test
+    for j in 0..block_max
+      rand1 = block_min + rand(block_max).ceil
+      rand2 = block_min + rand(block_max).ceil
 
+      @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB");
+      @other_line = @im.export_pixels(0, rand2, @im.columns, 1, "RGB")
+      @im.import_pixels(0, rand2, @im.columns, 1, "RGB", @line)
+      @im.import_pixels(0, rand1, @im.columns, 1, "RGB", @other_line)
+    end
+  end
 #im.display
 
   erb :index

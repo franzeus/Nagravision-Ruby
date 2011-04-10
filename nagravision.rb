@@ -6,18 +6,16 @@ require 'erb'
 include Magick
 
 get '/' do
-  @im = ImageList.new("public/files/mmtodo_paint.png")
+=begin
+  @im = ImageList.new("public/files/testscreen.png")
   #@pixels = @im.dispatch(0, 0, @im.columns, @im.rows, "RGB")
   blocks = 4 
-  block_size = @im.rows / blocks
-  block_min = 0 
-  block_max = 50	 
-  for i in 1..blocks
-  block_min = (block_size * (i - 1)).ceil #THIS Line fucks the code up
-  block_max = (block_size * i).ceil # (and this) | try a hardcoded nr for test
-    for j in 0..block_max
-      rand1 = block_min + rand(block_max).ceil
-      rand2 = block_min + rand(block_max).ceil
+  block_size = (@im.rows / blocks).to_int
+
+  for i in 0..(blocks - 1)
+    for j in 0..block_size
+      rand1 = block_size * i + rand(block_size).to_int
+      rand2 = block_size * i + rand(block_size).to_int
 
       @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB");
       @other_line = @im.export_pixels(0, rand2, @im.columns, 1, "RGB")
@@ -26,6 +24,7 @@ get '/' do
     end
   end
 #im.display
+=end
 
   erb :index
 end
@@ -47,6 +46,29 @@ post '/upload' do
 
   path = File.join(directory, @fileName)
   File.open(path, "wb") { |f| f.write(tmpfile.read) }
+  
+  @im = ImageList.new(path)
+
+  blocks = @numberOfBlocks.to_i
+  block_size = (@im.rows / blocks).to_int
+ 
+  for i in 0..(blocks - 1)
+    for j in 0..block_size
+      rand1 = block_size * i + rand(block_size).to_int
+      rand2 = block_size * i + rand(block_size).to_int
+ 
+      @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB");
+      @other_line = @im.export_pixels(0, rand2, @im.columns, 1, "RGB")
+      @im.import_pixels(0, rand2, @im.columns, 1, "RGB", @line)
+      @im.import_pixels(0, rand1, @im.columns, 1, "RGB", @other_line)
+    end
+  end
+
+  new_path =  File.join(directory, "new_" + @fileName)   
+  @new_filename = "new_" + @fileName	
+  #File.open(new_path, "wb") { |f| f.write(@im.read) }
+
+  @im.write(new_path)
 
   erb :upload
 end

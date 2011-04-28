@@ -5,7 +5,7 @@
   <style>
     body  { font-family:Arial; padding:3em; }
     label { display:block; margin-top:1.5em; margin-bottom:0.3em; color:#808080; }
-    input { padding:0.4em; }
+    input { padding:0.3em; font-size:1.2em;}
     h2    { font-size:3em; color:#475FFF; border-bottom:5px solid #F6F6F6; }
   </style>
 
@@ -19,8 +19,12 @@
   <label>Number of blocks:</label>
   <input type="text" name="post[blocks]" size="2" value="32" />
   
-  <label>Select Picture:</label>
+  <label>Select picture:</label>
 	<input type="file" name="post[file]" size="40" />
+  
+  <label>Type:</label>
+  <input type="radio" name="type" value="0" /> Encode
+  <input type="radio" name="type" value="1" /> Decode
 
   <p>
   <input type="submit" value=" Submit File " />

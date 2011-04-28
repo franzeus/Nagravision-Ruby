@@ -4,8 +4,7 @@
 
   <style>
     body  { font-family:Arial; }
-    label { display:block; margin-top:1.5em; margin-bottom:0.3em; }
-    input { padding:0.4em; }
+    img { border:1px solid #000000; }
   </style>
 
 </head>
@@ -13,12 +12,17 @@
 <body>
 <h2>Uploaded Picture</h2>
 
-Number of Blocks: <%= @numberOfBlocks %><br />
+<p>Number of Blocks: <%= @numberOfBlocks %></p>
 
-<h3>Old Picture:</h3>
-<img src="/files/<%= @fileName %>" />
+<div style="width:80%;text-align:center;">
+<div style="max-width:45%;float:left;">
+	<img src="/files/<%= @fileName %>" style="max-width:100%;"/><h3>Original</h3>
+</div>
+<div style="max-width:45%;float:right;">
+<img src="/files/<%= @new_filename %>" style="max-width:100%;"/><h3>Nagravisioned</h3>
+</div>
+</div>
 
-<h3>Nagravisioned Picture:</h3>
-<img src="/files/<%= @new_filename %>" />
+
 </body>
 </html>

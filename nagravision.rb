@@ -57,7 +57,7 @@ post '/upload' do
       rand1 = block_size * i + rand(block_size).to_int
       rand2 = block_size * i + rand(block_size).to_int
  
-      @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB");
+      @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB")
       @other_line = @im.export_pixels(0, rand2, @im.columns, 1, "RGB")
       @im.import_pixels(0, rand2, @im.columns, 1, "RGB", @line)
       @im.import_pixels(0, rand1, @im.columns, 1, "RGB", @other_line)

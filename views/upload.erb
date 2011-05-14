@@ -20,5 +20,11 @@ Number of Blocks: <%= @numberOfBlocks %><br />
 
 <h3>Nagravisioned Picture:</h3>
 <img src="/files/<%= @new_filename %>" />
+<%= #@res[1] 
+%>
+<% @comp_arr.each do |comp| %>
+
+<%= comp[:best_old_ind].to_s %><br>
+<% end %>
 </body>
 </html>

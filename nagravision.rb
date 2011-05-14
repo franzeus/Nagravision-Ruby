@@ -52,8 +52,7 @@ post '/upload' do
 
   blocks = @numberOfBlocks.to_i
   block_size = (@im.rows / blocks)
-  block_min = 0
-  block_max = 50
+
   for i in 0...blocks
     block_min = block_size * i
     block_max = block_size * (i + 1) 
@@ -63,6 +62,7 @@ post '/upload' do
       rand2 = block_min + rand(block_max - block_min).ceil
 
       @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB");
+
       @other_line = @im.export_pixels(0, rand2, @im.columns, 1, "RGB")
       @im.import_pixels(0, rand2, @im.columns, 1, "RGB", @line)
       @im.import_pixels(0, rand1, @im.columns, 1, "RGB", @other_line)

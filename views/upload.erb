@@ -22,9 +22,12 @@ Number of Blocks: <%= @numberOfBlocks %><br />
 <img src="/files/<%= @new_filename %>" />
 <%= #@res[1] 
 %>
-<% @comp_arr.each do |comp| %>
 
-<%= comp[:best_old_ind].to_s %><br>
+<%= @comp_arr.size %>
+<% counter = 0 %>
+<% @comp_arr.each do |comp| %>
+<%= counter %>: <%= comp[:value] %>, <%= comp[:best_old_ind].to_s %><br>
+<% counter+=1  %>
 <% end %>
 </body>
 </html>

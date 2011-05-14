@@ -87,19 +87,20 @@ post '/upload' do
   @comp_arr.each do |comp|
     comp[:best_old_ind] = -1
   end
+
+  alrdy_incl = Array.new
  
   for block_count in 0...@numberOfBlocks.to_i
     this_block_min = block_count * block_size
     this_block_max = (block_count + 1) * block_size
-    alrdy_incl = Array.new
 
-    for i in this_block_min...this_block_max
+    for i in this_block_min..this_block_max
       @comp_arr[i] = Hash.new
-      @comp_arr[i][:value] = 1
+      @comp_arr[i][:value] = 100
       @line = @im.export_pixels(0, i, @im.columns, 1, "RGB")
       @im1.import_pixels(0,0,@im.columns, 1, "RGB", @line)
 
-      for j in this_block_min...this_block_max
+      for j in this_block_min..this_block_max
         if(i == j)
           next
         end
@@ -109,35 +110,29 @@ post '/upload' do
 
         diff = @im1.difference(@im2)
       
-        # we need to check if i's best line is j, j's best line is not i. 
         if(diff[1] < @comp_arr[i][:value] && !alrdy_incl.include?(j)) 
           alrdy_incl << j
           @comp_arr[i][:value] = diff[1]
           @comp_arr[i][:best_line] = @other_line
           @comp_arr[i][:best_old_ind] = j
-          #puts "New best comp"
         end
       end
-    
-      #if no line found (cuz all lines already included)
-      #if(@comp_arr[i][:best_old_ind] == -1)
-      #  @comp_arr[i][:value] = diff[1]
-      #  @comp_arr[i][:best_line] = @other_line
-      #  @comp_arr[i][:best_old_ind] = j
-      #end
+      puts "#{i} in #{@comp_arr[i][:best_old_ind]} with #{@comp_arr[i][:value]}"
     end
   end
-  
+
   ext_counter = 0
   for i in 0...@decoded_img.rows
-    puts "Importing #{ext_counter}"
-    puts @comp_arr[ext_counter][:best_old_ind]
-    @decoded_img.import_pixels(0, ext_counter, @decoded_img.columns, 1, "RGB", @comp_arr[ext_counter][:best_line])
-
-    ext_counter = @comp_arr[ext_counter][:best_old_ind]
+    #puts "Importing #{ext_counter}"
+    #puts @comp_arr[ext_counter][:best_old_ind]
+  
+    if(@comp_arr[i][:best_old_ind])
+      @decoded_img.import_pixels(0, i, @decoded_img.columns, 1, "RGB", @comp_arr[i][:best_line])
+    end
+    #ext_counter = @comp_arr[ext_counter][:best_old_ind]
   end
 
-  puts @comp_arr.select {|c| c[:best_old_ind] == 999 }
+  #puts @comp_arr.select {|c| c[:best_old_ind] == 999 }
 
   dec_path = File.join(directory, "dec_" + @fileName)
   @decoded_img.write(dec_path)

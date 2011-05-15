@@ -25,9 +25,10 @@
 
 <%= @comp_arr.size %>
 <% counter = 0 %>
+<p>
 <% @comp_arr.each do |comp| %>
-<%= counter %>: <%= comp[:value] %>, <%= comp[:best_old_ind].to_s %><br>
+ <%= counter %>: <%= comp[:best_old_ind] %><br>
 <% counter+=1  %>
-<% end %>
+<% end %></p>
 </body>
 </html>

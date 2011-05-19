@@ -23,12 +23,6 @@
 </div>
 </div>
 
-<%= @comp_arr.size %>
-<% counter = 0 %>
-<p>
-<% @comp_arr.each do |comp| %>
- <%= counter %>: <%= comp[:best_old_ind] %><br>
-<% counter+=1  %>
-<% end %></p>
+<%= @comp_arr[0] %>
 </body>
 </html>

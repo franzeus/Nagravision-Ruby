@@ -74,9 +74,10 @@ post '/upload' do
 
   @im.write(new_path) 
 
-  #we know the amount of blocks
-  #first: we know all pixels per line
-  #later: how many pixels do we need to know
+  # ...........................................................
+  # we know the amount of blocks
+  # first: we know all pixels per line
+  # later: how many pixels do we need to know
 
   @im1 = Image.new(@im.columns, 1)
   @im2 = Image.new(@im.columns, 1)

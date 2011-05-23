@@ -82,7 +82,7 @@ post '/upload' do
   @im1 = Image.new(@im.columns, 1)
   @im2 = Image.new(@im.columns, 1)
   
-  @decoded_img = Image.new(@im.columns, block_size)
+  @decoded_img = Image.new(@im.columns, @im.rows)
 
   @comp_arr = Array.new(block_size) { Array.new(block_size) { Hash.new} }
 
@@ -114,7 +114,7 @@ post '/upload' do
 
   for i in 0..(block_size - 1)
     for j in 0..(block_size - 1)
-      puts "i: #{i} and j #{j}"
+      #puts "i: #{i} and j #{j}"
       if(i == j)
         next
       else
@@ -127,52 +127,64 @@ post '/upload' do
     end
   end
 
-  puts "biggest diff with #{biggest_diff[:diff]}, first line: #{biggest_diff[:line1]}"
+  puts "biggest diff with #{biggest_diff[:diff]}, first line: #{biggest_diff[:line1]} with #{biggest_diff[:line2]}"
 
-
+  first_line = biggest_diff[:line1]
 #2 finde best match für linie -> linie = betch match
 #3 finde best match für linie...
-  @comp = Array.new(block_size) { Hash.new }
-    
+  @comp = Array.new(@im.rows) { Hash.new }
+    puts "**** #{@comp.size} and #{@im.rows}"
   line = @im.export_pixels(0, first_line, @im.columns, 1, "RGB")
+  alrdy_incl << first_line
+  #puts first_line
 
-  for i in 0..(block_size - 1)
-    @im1.import_pixels(0,0,@im.columns, 1, "RGB", line)
-    @comp[i][:best_line] = 0
-    @comp[i][:best_diff] = 100
+  for block in 0..(@numberOfBlocks.to_i - 1)
+    
+    for i in (block * block_size)..(((block + 1) * block_size) - 1)
+      @im1.import_pixels(0,0,@im.columns, 1, "RGB", line)
+      @comp[i][:best_line] = -1
+      @comp[i][:best_diff] = 100
 
-    alrdy_incl << i
+      #alrdy_incl << i
 
-    for j in 0..(block_size -1)
-      if(i == j)
-        next
-      else
-        other_line = @im.export_pixels(0, j, @im.columns, 1, "RGB")
-        @im2.import_pixels(0,0,@im.columns, 1, "RGB", other_line)
-        diff = @im1.difference(@im2)
-        
-        if diff[1] < @comp[i][:best_diff] && !alrdy_incl.include?(j)
-          alrdy_incl.delete(@comp[i][:best_line])
-          alrdy_incl << j
-          @comp[i][:best_line] = j
-          @comp[i][:best_diff] = diff[1]
+      for j in (block * block_size)..(((block + 1) * block_size) - 1)
+        if(i == j)
+          next
+        else
+          other_line = @im.export_pixels(0, j, @im.columns, 1, "RGB")
+          @im2.import_pixels(0,0,@im.columns, 1, "RGB", other_line)
+          diff = @im1.difference(@im2)
+          
+          if diff[1] < @comp[i][:best_diff] && !alrdy_incl.include?(j)
+            alrdy_incl.delete(@comp[i][:best_line])
+   #         puts "removing #{@comp[i][:best_line]}"
+            alrdy_incl << j
+    #        puts j
+            @comp[i][:best_line] = j
+            @comp[i][:best_diff] = diff[1]
+          end
         end
       end
-    end
+      if  @comp[i][:best_line] == -1
+        puts "*********** NO LINE FOUND, comp size: #{@comp.size}, with i #{i}"#
+        @comp[i][:best_line] = @comp[(i - 1)][:best_line]
+        @comp[i][:no_line] = true
+        break
+      end
+      line = @im.export_pixels(0, @comp[i][:best_line], @im.columns, 1, "RGB")
+      #puts "next line is #{ @comp[i][:best_line]}"
+    end 
   end
 
-  next_line = first_line
-  for i in 0..(block_size - 1)
-    tmp_line = @im.export_pixels(0, next_line, @im.columns, 1, "RGB")
-    @decoded_img.import_pixels(0, i, @decoded_img.columns, 1, "RGB", tmp_line)
+   next_line = first_line
+   for i in 0..(@comp.size - 1)
+     #puts next_line
+     tmp_line = @im.export_pixels(0, next_line, @im.columns, 1, "RGB")
 
-    next_line = @comp[i][:best_line]
-  end
-
-
-#4 finde besten treffer in neuem block für linie
-#2
-
+     puts "next line: #{next_line} and i #{i} and best: #{@comp[i][:best_line]}"
+     @decoded_img.import_pixels(0, i, @decoded_img.columns, 1, "RGB", tmp_line)
+     next_line = @comp[i][:best_line]
+   end
 
   dec_path = File.join(directory, "dec_" + @fileName)
   @decoded_img.write(dec_path)

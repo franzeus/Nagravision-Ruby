@@ -79,3 +79,34 @@
   end
 
   #puts @comp_arr.select {|c| c[:best_old_ind] == 999 }
+
+
+
+
+
+#**** Code for 'find fitting line in next block'
+
+last_ind = ((block + 1) * block_size) - 1
+    while @comp[last_ind][:no_line] == nil
+      last_ind -= 1
+    end
+    if (block + 1) < @numberOfBlocks.to_i
+      l = @im.export_pixels(0, last_ind, @im.columns, 1, "RGB")
+      @imX = Image.new(@im.columns, 1)
+      @imX.import_pixels(0,0,@im.columns, 1, "RGB", l)
+      @imY = Image.new(@im.columns, 1)
+
+      diff = Hash.new
+      diff[:value] = 100
+      diff[:best_line] = -1
+      for k in 0..(block_size - 1)
+        nl = @im.export_pixels(0, (k + (block_size * block)), @im.columns, 1, "RGB")
+        @imY.import_pixels(0,0,@im.columns, 1, "RGB", nl)
+        tmp_diff = @imX.difference(@imY)
+        if tmp_diff[1] <= diff[:value]
+          diff[:value] = tmp_diff[1]
+          diff[:best_line] = k + (block_size * block)
+        end
+      end
+      line = @im.export_pixels(0, diff[:best_line], @im.columns, 1, "RGB")
+    end

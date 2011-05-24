@@ -44,11 +44,14 @@ post '/upload' do
       @error = "No file selected"
       return "Upload Error"#haml(:upload)
   end
+  
+  start_time_encode = Time.now
 
   path = File.join(directory, @fileName)
   File.open(path, "wb") { |f| f.write(tmpfile.read) }
   
   @im = ImageList.new(path)
+  real_first_line = @im.export_pixels(0, 0, @im.columns, 1, "RGB");
 
   blocks = @numberOfBlocks.to_i
   block_size = (@im.rows / blocks)
@@ -61,7 +64,7 @@ post '/upload' do
       rand1 = block_min + rand(block_max - block_min).ceil
       rand2 = block_min + rand(block_max - block_min).ceil
 
-      @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB");
+      @line = @im.export_pixels(0, rand1, @im.columns, 1, "RGB")
 
       @other_line = @im.export_pixels(0, rand2, @im.columns, 1, "RGB")
       @im.import_pixels(0, rand2, @im.columns, 1, "RGB", @line)
@@ -74,13 +77,16 @@ post '/upload' do
 
   @im.write(new_path) 
 
+  @total_time_encode = Time.now - start_time_encode
+ 
   #we know the amount of blocks
   #first: we know all pixels per line
   #later: how many pixels do we need to know
+  
+   start_time_decode = Time.now
 
   @im1 = Image.new(@im.columns, 1)
   @im2 = Image.new(@im.columns, 1)
-  @next = Image.new(@im.columns, 1)
 
   @decoded_img = Image.new(@im.columns, @im.rows)
 
@@ -104,23 +110,6 @@ post '/upload' do
         @comp_arr[i][j][:value] = diff[1]
       end
     end
-    # ENABLE this to influence 'first line choice' with next block
-    #tmp_sum = 0
-    #for k in (block_size - 1)..((block_size * 2) - 1)
-    #  nl = @im.export_pixels(0, k, @im.columns, 1, "RGB")
-    #  @next.import_pixels(0, 0, @im.columns, 1, "RGB", nl)
-    #  tmp = @im1.difference(@next)
-    #  tmp_sum += tmp[1]
-    #end
-    #for l in 0..(block_size - 1)
-    #  if i == l
-    #    next
-    #  else
-    #    puts "tmp #{tmp_sum}"
-    #    @comp_arr[i][l][:value] += tmp_sum #/ block_size
-    #  end
-    #end
-    #puts "nexxt i"
   end
 
   first_line = 0
@@ -149,13 +138,45 @@ post '/upload' do
   puts "biggest diff with #{biggest_diff[:diff]}, first line: #{biggest_diff[:line1]} with #{biggest_diff[:line2]}"
 
   # for now we just guess which of those is the first line
-  first_line = biggest_diff[:line1]
+#  first_line = biggest_diff[:line1]
+  # ENABLE this to influence 'first line choice' with next block
+  #tmp_sum = 0
+#  tmpImg1 = Image.new(@im.columns, 1)
+#  tmpImg2 = Image.new(@im.columns, 1)
+  
+#  l1 = @im.export_pixels(0, biggest_diff[:line1], @im.columns, 1, "RGB")
+#  l2 = @im.export_pixels(0, biggest_diff[:line2], @im.columns, 1, "RGB")
+#  tmpImg1.import_pixels(0, 0, @im.columns, 1, "RGB", l1)
+#  tmpImg2.import_pixels(0, 0, @im.columns, 1, "RGB", l2)
 
+#  tmp_sum1 = 0
+#  tmp_sum2 = 0
+
+#  for i in block_size..((block_size * 2) - 1)
+#    puts "from #{block_size} to #{((block_size * 2) - 1)}"
+#    tmp_line = @im.export_pixels(0, i, @im.columns, 1, "RGB")
+#    tmp_Img3 = Image.new(@im.columns, 1)
+#    tmp_Img3.import_pixels(0, 0, @im.columns, 1, "RGB", tmp_line)
+#    tmp = Array.new
+#    puts tmp_Img3.difference(tmpImg1)
+#    tmp = tmp_Img3.difference(tmpImg1)
+#    puts "temp: #{tmp}"
+#    tmp_sum1 += tmp[1]
+#    tmp = tmp_img3.difference(tmpImg2)
+#  end
+
+#  if tmp_sum1 > tmp_sum2
+#    first_line = biggest_diff[:line1]
+#  else
+#    first_line = biggest_diff[:line2]
+#  end
 
   @comp = Array.new(@im.rows) { Hash.new }
   
   # we start with our guessed first line
-  line = @im.export_pixels(0, first_line, @im.columns, 1, "RGB")
+  #line = @im.export_pixels(0, first_line, @im.columns, 1, "RGB")
+  line = real_first_line
+
   alrdy_incl << first_line
 
   # we now check for the best match within the block
@@ -188,6 +209,7 @@ post '/upload' do
       # last 'best' line as next
       # **** THIS IS NOT A GOOD SOLUTION ->  transitions between blocks look wrong
       if  @comp[i][:best_line] == -1
+        puts "*********************** NO BEST LINE FOUND"
         @comp[i][:best_line] = @comp[(i - 1)][:best_line]
         break
       end
@@ -209,7 +231,11 @@ post '/upload' do
 
   # write the (hopefully correctly) decoded image
   dec_path = File.join(directory, "dec_" + @fileName)
+  @dec_filename = "dec_" + @fileName
+  puts @dec_filename
   @decoded_img.write(dec_path)
+
+  @total_time_decode = Time.now - start_time_decode
 
   erb :upload
 end

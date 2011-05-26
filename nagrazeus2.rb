@@ -145,7 +145,7 @@ post '/upload' do
     # Not for the last block
     if n+1 < blocks
 
-      for m in 0..((block_size) + m)
+      for m in 0..((block_size) + n)
         # Get current line image data
         current_line_of_next_block = @im.export_pixels(0, (n * block_size) + m, @im.columns, 1, "RGB")
         @current_img.import_pixels(0, (n * block_size) + m, @im.columns, 1, "RGB", current_line_of_next_block)

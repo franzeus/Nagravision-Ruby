@@ -14,15 +14,33 @@
 
 <p>Number of Blocks: <%= @numberOfBlocks %></p>
 
-<div style="width:80%;text-align:center;">
-<div style="max-width:45%;float:left;">
-	<img src="/files/<%= @fileName %>" style="max-width:100%;"/><h3>Original</h3>
+<div style="width:90%;text-align:center;">
+
+<div style="max-width:30%;float:left;">
+  <h2>Original Image</h2>
+	<img src="/files/<%= @fileName %>" style="max-width:100%;"/>
 </div>
-<div style="max-width:45%;float:right;">
-<img src="/files/<%= @new_filename %>" style="max-width:100%;"/><h3>Nagravisioned</h3>
+
+<div style="max-width:30%;float:left;margin-left:2em;margin-right:2em;">
+  <h2>Encoded Image</h2>
+  <img src="/files/<%= @new_filename %>" style="max-width:100%;"/>
+</div>
+
+<div style="max-width:30%;float:right;">
+<h2>Decoded Image</h2>
+<img src="/files/<%= @dec_filename %>" style="max-width:100%;"/>
+</div>
+
+<div style="width: 400px;clear:left;">
+<h2 style="padding-top: 50px">Time measurement:</h2>
+<ul>
+  <li>Encoding: <%= @total_time_encode %>s</li>
+  <li>Decoding: <%= @total_time_decode %>s</li>
+</ul>
 </div>
 </div>
 
 <%#= @comp_arr[0] %>
+
 </body>
 </html>

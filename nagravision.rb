@@ -139,45 +139,46 @@ post '/upload' do
   puts "biggest diff with #{biggest_diff[:diff]}, first line: #{biggest_diff[:line1]} with #{biggest_diff[:line2]}"
 
   # for now we just guess which of those is the first line
-#  first_line = biggest_diff[:line1]
+  #first_line = biggest_diff[:line1]
   # ENABLE this to influence 'first line choice' with next block
-  #tmp_sum = 0
-#  tmpImg1 = Image.new(@im.columns, 1)
-#  tmpImg2 = Image.new(@im.columns, 1)
+
+  tmpImg1 = Image.new(@im.columns, 1)
+  tmpImg2 = Image.new(@im.columns, 1)
   
-#  l1 = @im.export_pixels(0, biggest_diff[:line1], @im.columns, 1, "RGB")
-#  l2 = @im.export_pixels(0, biggest_diff[:line2], @im.columns, 1, "RGB")
-#  tmpImg1.import_pixels(0, 0, @im.columns, 1, "RGB", l1)
-#  tmpImg2.import_pixels(0, 0, @im.columns, 1, "RGB", l2)
+  l1 = @im.export_pixels(0, biggest_diff[:line1], @im.columns, 1, "RGB")
+  l2 = @im.export_pixels(0, biggest_diff[:line2], @im.columns, 1, "RGB")
+  tmpImg1.import_pixels(0, 0, @im.columns, 1, "RGB", l1)
+  tmpImg2.import_pixels(0, 0, @im.columns, 1, "RGB", l2)
 
-#  tmp_sum1 = 0
-#  tmp_sum2 = 0
+  tmp_sum1 = 0
+  tmp_sum2 = 0
 
-#  for i in block_size..((block_size * 2) - 1)
-#    puts "from #{block_size} to #{((block_size * 2) - 1)}"
-#    tmp_line = @im.export_pixels(0, i, @im.columns, 1, "RGB")
-#    tmp_Img3 = Image.new(@im.columns, 1)
-#    tmp_Img3.import_pixels(0, 0, @im.columns, 1, "RGB", tmp_line)
-#    tmp = Array.new
-#    puts tmp_Img3.difference(tmpImg1)
-#    tmp = tmp_Img3.difference(tmpImg1)
-#    puts "temp: #{tmp}"
-#    tmp_sum1 += tmp[1]
-#    tmp = tmp_img3.difference(tmpImg2)
-#  end
+  for i in block_size..((block_size * 2) - 1)
+    #puts "from #{block_size} to #{((block_size * 2) - 1)}"
+    tmp_line = @im.export_pixels(0, i, @im.columns, 1, "RGB")
+    tmp_Img3 = Image.new(@im.columns, 1)
+    tmp_Img3.import_pixels(0, 0, @im.columns, 1, "RGB", tmp_line)
+    tmp = Array.new
 
-#  if tmp_sum1 > tmp_sum2
-#    first_line = biggest_diff[:line1]
-#  else
-#    first_line = biggest_diff[:line2]
-#  end
+    tmp = tmp_Img3.difference(tmpImg1)
+    tmp_sum1 += tmp[1]
+    tmp = tmp_Img3.difference(tmpImg2)
+  end
+
+  if tmp_sum1 > tmp_sum2
+    puts "tmp_sum1 bigger"
+    first_line = biggest_diff[:line1]
+  else
+    puts "tmp_sum2 bigger"
+    first_line = biggest_diff[:line2]
+  end
 
   @comp = Array.new(@im.rows) { Hash.new }
   
   # we start with our guessed first line
   #line = @im.export_pixels(0, first_line, @im.columns, 1, "RGB")
-  line = real_first_line
-
+#  line = real_first_line
+  line = @im.export_pixels(0, first_line, @im.columns, 1, "RGB")
   alrdy_incl << first_line
 
   # we now check for the best match within the block
@@ -185,7 +186,7 @@ post '/upload' do
   # and so on...
   for block in 0..(@numberOfBlocks.to_i - 1)
     for i in (block * block_size)..(((block + 1) * block_size) - 1)
-      @im1.import_pixels(0,0,@im.columns, 1, "RGB", line)
+      @im1.import_pixels(0,0,(@im.columns), 1, "RGB", line)
       @comp[i][:best_line] = -1
       @comp[i][:best_diff] = 100
 
@@ -194,7 +195,7 @@ post '/upload' do
           next
         else
           other_line = @im.export_pixels(0, j, @im.columns, 1, "RGB")
-          @im2.import_pixels(0,0,@im.columns, 1, "RGB", other_line)
+          @im2.import_pixels(0,0,(@im.columns), 1, "RGB", other_line)
           diff = @im1.difference(@im2)
           
           if diff[1] < @comp[i][:best_diff] && !alrdy_incl.include?(j)
@@ -208,7 +209,7 @@ post '/upload' do
       end
       # if no new line is found (normally because there is none left in the block) we just use the
       # last 'best' line as next
-      # **** THIS IS NOT A GOOD SOLUTION ->  transitions between blocks look wrong
+     
       if  @comp[i][:best_line] == -1
         puts "*********************** NO BEST LINE FOUND"
         @comp[i][:best_line] = @comp[(i - 1)][:best_line]
